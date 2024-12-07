@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 export const connection = ()=>{
     mongoose.connect(process.env.MONGO_URI, {
-        dbName: "JOB_PORTAL"
+        dbName: "JOB_PORTAL_With_Automation"
     }).then(()=>{
         console.log("Connected to database.")
     }).catch(err=>{
