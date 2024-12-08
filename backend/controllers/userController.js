@@ -74,116 +74,116 @@ export const register = catchAsyncErrors(async (req, res, next) => {
   }
 });
 
-export const login = catchAsyncErrors(async (req, res, next) => {
-  const { role, email, password } = req.body;
-  if (!role || !email || !password) {
-    return next(
-      new ErrorHandler("Email, password and role are required.", 400)
-    );
-  }
-  const user = await User.findOne({ email }).select("+password");
-  if (!user) {
-    return next(new ErrorHandler("Invalid email or password.", 400));
-  }
-  const isPasswordMatched = await user.comparePassword(password);
-  if (!isPasswordMatched) {
-    return next(new ErrorHandler("Invalid email or password.", 400));
-  }
-  if (user.role !== role) {
-    return next(new ErrorHandler("Invalid user role.", 400));
-  }
-  sendToken(user, 200, res, "User logged in successfully.");
-});
+// export const login = catchAsyncErrors(async (req, res, next) => {
+//   const { role, email, password } = req.body;
+//   if (!role || !email || !password) {
+//     return next(
+//       new ErrorHandler("Email, password and role are required.", 400)
+//     );
+//   }
+//   const user = await User.findOne({ email }).select("+password");
+//   if (!user) {
+//     return next(new ErrorHandler("Invalid email or password.", 400));
+//   }
+//   const isPasswordMatched = await user.comparePassword(password);
+//   if (!isPasswordMatched) {
+//     return next(new ErrorHandler("Invalid email or password.", 400));
+//   }
+//   if (user.role !== role) {
+//     return next(new ErrorHandler("Invalid user role.", 400));
+//   }
+//   sendToken(user, 200, res, "User logged in successfully.");
+// });
 
-export const logout = catchAsyncErrors(async (req, res, next) => {
-  res
-    .status(200)
-    .cookie("token", "", {
-      expires: new Date(Date.now()),
-      httpOnly: true,
-    })
-    .json({
-      success: true,
-      message: "Logged out successfully.",
-    });
-});
+// export const logout = catchAsyncErrors(async (req, res, next) => {
+//   res
+//     .status(200)
+//     .cookie("token", "", {
+//       expires: new Date(Date.now()),
+//       httpOnly: true,
+//     })
+//     .json({
+//       success: true,
+//       message: "Logged out successfully.",
+//     });
+// });
 
-export const getUser = catchAsyncErrors(async (req, res, next) => {
-  const user = req.user;
-  res.status(200).json({
-    success: true,
-    user,
-  });
-});
+// export const getUser = catchAsyncErrors(async (req, res, next) => {
+//   const user = req.user;
+//   res.status(200).json({
+//     success: true,
+//     user,
+//   });
+// });
 
-export const updateProfile = catchAsyncErrors(async (req, res, next) => {
-  const newUserData = {
-    name: req.body.name,
-    email: req.body.email,
-    phone: req.body.phone,
-    address: req.body.address,
-    coverLetter: req.body.coverLetter,
-    niches: {
-      firstNiche: req.body.firstNiche,
-      secondNiche: req.body.secondNiche,
-      thirdNiche: req.body.thirdNiche,
-    },
-  };
-  const { firstNiche, secondNiche, thirdNiche } = newUserData.niches;
+// export const updateProfile = catchAsyncErrors(async (req, res, next) => {
+//   const newUserData = {
+//     name: req.body.name,
+//     email: req.body.email,
+//     phone: req.body.phone,
+//     address: req.body.address,
+//     coverLetter: req.body.coverLetter,
+//     niches: {
+//       firstNiche: req.body.firstNiche,
+//       secondNiche: req.body.secondNiche,
+//       thirdNiche: req.body.thirdNiche,
+//     },
+//   };
+//   const { firstNiche, secondNiche, thirdNiche } = newUserData.niches;
 
-  if (
-    req.user.role === "Job Seeker" &&
-    (!firstNiche || !secondNiche || !thirdNiche)
-  ) {
-    return next(
-      new ErrorHandler("Please provide your all preferred job niches.", 400)
-    );
-  }
-  if (req.files) {
-    const resume = req.files.resume;
-    if (resume) {
-      const currentResumeId = req.user.resume.public_id;
-      if (currentResumeId) {
-        await cloudinary.uploader.destroy(currentResumeId);
-      }
-      const newResume = await cloudinary.uploader.upload(resume.tempFilePath, {
-        folder: "Job_Seekers_Resume",
-      });
-      newUserData.resume = {
-        public_id: newResume.public_id,
-        url: newResume.secure_url,
-      };
-    }
-  }
+//   if (
+//     req.user.role === "Job Seeker" &&
+//     (!firstNiche || !secondNiche || !thirdNiche)
+//   ) {
+//     return next(
+//       new ErrorHandler("Please provide your all preferred job niches.", 400)
+//     );
+//   }
+//   if (req.files) {
+//     const resume = req.files.resume;
+//     if (resume) {
+//       const currentResumeId = req.user.resume.public_id;
+//       if (currentResumeId) {
+//         await cloudinary.uploader.destroy(currentResumeId);
+//       }
+//       const newResume = await cloudinary.uploader.upload(resume.tempFilePath, {
+//         folder: "Job_Seekers_Resume",
+//       });
+//       newUserData.resume = {
+//         public_id: newResume.public_id,
+//         url: newResume.secure_url,
+//       };
+//     }
+//   }
 
-  const user = await User.findByIdAndUpdate(req.user.id, newUserData, {
-    new: true,
-    runValidators: true,
-    useFindAndModify: false,
-  });
-  res.status(200).json({
-    success: true,
-    user,
-    message: "Profile updated.",
-  });
-});
+//   const user = await User.findByIdAndUpdate(req.user.id, newUserData, {
+//     new: true,
+//     runValidators: true,
+//     useFindAndModify: false,
+//   });
+//   res.status(200).json({
+//     success: true,
+//     user,
+//     message: "Profile updated.",
+//   });
+// });
 
-export const updatePassword = catchAsyncErrors(async (req, res, next) => {
-  const user = await User.findById(req.user.id).select("+password");
+// export const updatePassword = catchAsyncErrors(async (req, res, next) => {
+//   const user = await User.findById(req.user.id).select("+password");
 
-  const isPasswordMatched = await user.comparePassword(req.body.oldPassword);
+//   const isPasswordMatched = await user.comparePassword(req.body.oldPassword);
 
-  if (!isPasswordMatched) {
-    return next(new ErrorHandler("Old password is incorrect.", 400));
-  }
+//   if (!isPasswordMatched) {
+//     return next(new ErrorHandler("Old password is incorrect.", 400));
+//   }
 
-  if (req.body.newPassword !== req.body.confirmPassword) {
-    return next(
-      new ErrorHandler("New password & confirm password do not match.", 400)
-    );
-  }
+//   if (req.body.newPassword !== req.body.confirmPassword) {
+//     return next(
+//       new ErrorHandler("New password & confirm password do not match.", 400)
+//     );
+//   }
 
-  user.password = req.body.newPassword;
-  await user.save();
-  sendToken(user, 200, res, "Password updated successfully.");
-});
+//   user.password = req.body.newPassword;
+//   await user.save();
+//   sendToken(user, 200, res, "Password updated successfully.");
+// });
